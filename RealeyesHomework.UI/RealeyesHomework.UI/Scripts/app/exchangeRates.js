@@ -1,14 +1,24 @@
 ﻿define(["ko"],
     function (ko) {
         "use strict";
-        var availableCurrencies = ko.observableArray(["HUF", "EUR"]);
+        var availableCurrencies = ko.observableArray();
         var selectedSource = ko.observable();
         var selectedTarget = ko.observable();
 
-        var status = ko.observable("Loading currencies...");
+        var status = ko.observable();
 
         var init = function () {
-            status("");
+            status("Loading currencies...");
+            $.ajax({
+                    url: "/api/exchange/getcurrencies",
+                    type: "GET",
+                    contentType: "application/json"
+                })
+                .done(function(response) {
+                    console.log(response);
+                    availableCurrencies(response);
+                    status("");
+                });
         };
 
         var showData = function () {
