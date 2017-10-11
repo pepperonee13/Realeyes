@@ -2,10 +2,16 @@
     ViewBag.Title = "Home Page";
 }
 
+@section scripts{
+    @Html.Raw("require(['home/index'])");
+}
+
 <div id="home">
+    <h2>Exchange rates</h2>
     <div class="row">
         <select data-bind="options: availableCurrencies, value: selectedSource"></select>
         <select data-bind="options: availableCurrencies, value: selectedTarget"></select>
         <button data-bind="click: showData">Show data</button>
+        <span data-bind="text: status"></span>
     </div>
 </div>
