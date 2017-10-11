@@ -9,9 +9,9 @@
 <div id="home">
     <h2>Exchange rates</h2>
     <div class="row">
-        <select data-bind="options: availableCurrencies, value: selectedSource"></select>
-        <select data-bind="options: availableCurrencies, value: selectedTarget"></select>
-        <button data-bind="click: showData">Show data</button>
+        <select data-bind="options: availableCurrencies, value: selectedSource, visible: isLoaded"></select>
+        <select data-bind="options: availableCurrencies, value: selectedTarget, visible: isLoaded"></select>
+        <button data-bind="click: showData, visible: isLoaded">Show data</button>
         <span data-bind="text: status"></span>
     </div>
 </div>

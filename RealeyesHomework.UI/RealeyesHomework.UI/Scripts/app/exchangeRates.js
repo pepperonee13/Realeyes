@@ -2,6 +2,7 @@
     function (ko) {
         "use strict";
         var availableCurrencies = ko.observableArray();
+        var isLoaded = ko.observable(false);
         var selectedSource = ko.observable();
         var selectedTarget = ko.observable();
 
@@ -10,13 +11,14 @@
         var init = function () {
             status("Loading currencies...");
             $.ajax({
-                    url: "/api/exchange/getcurrencies",
-                    type: "GET",
-                    contentType: "application/json"
-                })
-                .done(function(response) {
+                url: "/api/exchange/getcurrencies",
+                type: "GET",
+                contentType: "application/json"
+            })
+                .done(function (response) {
                     console.log(response);
                     availableCurrencies(response);
+                    isLoaded(true);
                     status("");
                 });
         };
@@ -31,7 +33,8 @@
             selectedSource: selectedSource,
             selectedTarget: selectedTarget,
             status: status,
-            init: init
+            init: init,
+            isLoaded: isLoaded
         };
     }
 );
