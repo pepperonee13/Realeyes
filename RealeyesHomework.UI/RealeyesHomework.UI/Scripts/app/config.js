@@ -5,10 +5,14 @@
         jqueryValidate: "../jquery.validate",
         jqueryValidateUnobtrusive: "../jquery.validate.unobtrusive",
         bootstrap: "../bootstrap",
-        ko: "/Scripts/knockout-3.4.2"
+        ko: "../knockout-3.4.2",
+        d3: "../d3.v3",
+        rickshaw: "../rickshaw"
     },
     shim: {
         jqueryValidate: ["jquery"],
-        jqueryValidateUnobtrusive: ["jquery", "jqueryValidate"]
+        jqueryValidateUnobtrusive: ["jquery", "jqueryValidate"],
+        d3: { exports: "d3" },
+        rickshaw: { exports: "Rickshaw", deps: ["d3"] }
     }
 });

@@ -22,3 +22,7 @@ select,
 textarea {
     max-width: 280px;
 }
+
+#bootstrap-overrides-legend .label {
+    color: black
+}
