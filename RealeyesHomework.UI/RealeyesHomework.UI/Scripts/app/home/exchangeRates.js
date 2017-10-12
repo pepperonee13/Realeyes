@@ -8,43 +8,45 @@
 
         var status = ko.observable();
         var graph = undefined;
-        var legend = undefined;
 
-        var initGraph = function() {
+        var seriesData = [];
+
+        var createGraph = function () {
             graph = new Rickshaw.Graph({
                 element: document.querySelector("#chart"),
                 renderer: 'line',
                 series: [
                     {
-                        data: [{ x: 0, y: 40 }, { x: 1, y: 49 }],
-                        color: 'steelblue',
-                        name: "line 1"
-                    }, {
-                        data: [{ x: 0, y: 20 }, { x: 1, y: 24 }],
-                        color: 'lightblue',
-                        name: "line 2"
+                        data: seriesData,
+                        color: 'steelblue'
                     }
                 ]
             });
 
-            legend = new Rickshaw.Graph.Legend({
+            var yAxis = new Rickshaw.Graph.Axis.Y({
                 graph: graph,
-                element: document.querySelector('#bootstrap-overrides-legend')
+                tickFormat: Rickshaw.Fixtures.Number.formatKMBT
             });
 
-            var highlighter = new Rickshaw.Graph.Behavior.Series.Highlight({
+            yAxis.render();
+
+            var hoverDetail = new Rickshaw.Graph.HoverDetail({
                 graph: graph,
-                legend: legend
+                xFormatter: function (x) {
+                    return new Date(x).toISOString().slice(0, 10);
+                }
             });
+
+            graph.render();
         };
 
         var loadCurrencies = function () {
             status("Loading currencies...");
             $.ajax({
-                    url: "/api/exchange/getcurrencies",
-                    type: "GET",
-                    contentType: "application/json"
-                })
+                url: "/api/exchange/getcurrencies",
+                type: "GET",
+                contentType: "application/json"
+            })
                 .done(function (response) {
                     console.log(response);
                     availableCurrencies(response);
@@ -57,12 +59,38 @@
             loadCurrencies();
         };
 
-        var showData = function () {
-            console.log("show data for " + selectedSource() + " and " + selectedTarget());
+        var loadExchangeData = function (onLoaded) {
+            $.ajax({
+                url: "/api/exchange/getexchangerate?fromCurrency=" + selectedSource() + "&toCurrency=" + selectedTarget(),
+                type: "GET",
+                contentType: "application/json"
+            })
+                .done(function (response) {
+                    console.log(response);
+                    seriesData.length = 0;
+                    $.each(response,
+                        function(i, item) {
+                            seriesData.push({
+                                x: new Date(i).getTime(),
+                                y: item
+                            });
+                        });
+
+                    onLoaded();
+                });
+        };
+
+        var updateGraph = function () {
             if (!graph) {
-                initGraph();
+                createGraph();
             }
-            graph.render();
+            graph.series[0].name = selectedTarget();
+            graph.update();
+        };
+
+        var showData = function () {
+            console.log("loading data for " + selectedSource() + " and " + selectedTarget());
+            loadExchangeData(updateGraph);
         };
 
         return {
