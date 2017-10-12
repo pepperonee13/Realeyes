@@ -1,5 +1,5 @@
 ﻿using RealeyesHomework.UI.Models;
-using RealeyesHomework.UI.Services;
+using RealeyesHomework.UI.Services.Implementations;
 using System;
 using System.Web.Http;
 
@@ -8,11 +8,12 @@ namespace RealeyesHomework.UI.ApiControllers
     [RoutePrefix("api/exchange")]
     public class ExchangeController : ApiController
     {
-        private readonly ExchangeService _exchangeService;
+        private readonly ExchangeRateCalculator _exchangeRateCalculator;
 
         public ExchangeController()
         {
-            _exchangeService = new ExchangeService();
+            //TODO: DI
+            _exchangeRateCalculator = new ExchangeRateCalculator(new ExchangeDataService());
         }
 
         [HttpGet]
@@ -21,7 +22,7 @@ namespace RealeyesHomework.UI.ApiControllers
         {
             try
             {
-                return Ok(_exchangeService.LoadCurrencies());
+                return Ok(_exchangeRateCalculator.LoadCurrencies());
             }
             catch (Exception e)
             {
@@ -38,7 +39,7 @@ namespace RealeyesHomework.UI.ApiControllers
                 return BadRequest(ModelState);
             }
 
-            return Ok(_exchangeService.GetExchangeRate(request.FromCurrency, request.ToCurrency));
+            return Ok(_exchangeRateCalculator.GetExchangeRate(request.FromCurrency, request.ToCurrency));
         }
     }
 }

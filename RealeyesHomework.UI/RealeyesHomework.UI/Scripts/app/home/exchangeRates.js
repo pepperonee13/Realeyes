@@ -71,7 +71,7 @@
                     $.each(response,
                         function(i, item) {
                             seriesData.push({
-                                x: new Date(i).getTime(),
+                                x: Number(i),
                                 y: item
                             });
                         });
