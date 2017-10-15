@@ -164,6 +164,7 @@
     </Compile>
     <Compile Include="Models\GetExchangeRateRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Adapters\ExchangeDataAdapter.cs" />
     <Compile Include="Services\Implementations\InMemoryExchangeDataRepository.cs" />
     <Compile Include="Services\Implementations\ExchangeRateCalculator.cs" />
     <Compile Include="Services\Implementations\ExchangeDataService.cs" />

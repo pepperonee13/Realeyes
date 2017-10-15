@@ -24,8 +24,8 @@ namespace RealeyesHomework.UI.Services.Implementations
         public IDictionary<long, decimal> GetExchangeRate(string fromCurrency, string toCurrency)
         {
             var result = new Dictionary<long, decimal>();
-            //TODO: use from and to dates as parameters
-            var data = _exchangeDataRepository.GetExchangeRates(DateTime.Today.AddDays(-30), DateTime.Today).OrderBy(x => x.Key);
+            //TODO: pass from and to dates as parameters
+            var data = _exchangeDataRepository.GetExchangeRates(DateTime.MinValue, DateTime.Today).OrderBy(x => x.Key);
             foreach (var dateAndRates in data)
             {
                 var exchangeRates = AddLeadCurrency(dateAndRates.Value);
