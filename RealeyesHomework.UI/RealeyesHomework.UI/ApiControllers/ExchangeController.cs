@@ -1,6 +1,8 @@
 ﻿using RealeyesHomework.UI.Models;
 using RealeyesHomework.UI.Services.Implementations;
+using RealeyesHomework.UI.Services.Interfaces;
 using System;
+using System.Linq;
 using System.Web.Http;
 
 namespace RealeyesHomework.UI.ApiControllers
@@ -9,11 +11,24 @@ namespace RealeyesHomework.UI.ApiControllers
     public class ExchangeController : ApiController
     {
         private readonly ExchangeRateCalculator _exchangeRateCalculator;
+        private readonly IExchangeDataRepository _exchangeDataRepository;
+        private readonly IExchangeDataService _exchangeDataService;
 
         public ExchangeController()
         {
             //TODO: DI
-            _exchangeRateCalculator = new ExchangeRateCalculator(new ExchangeDataService());
+            _exchangeDataService = new ExchangeDataService();
+            _exchangeDataRepository = new InMemoryExchangeDataRepository();
+            _exchangeRateCalculator = new ExchangeRateCalculator(_exchangeDataRepository);
+        }
+
+        [HttpPost]
+        [Route("LoadData")]
+        public IHttpActionResult LoadData()
+        {
+            var data = _exchangeDataService.Load();
+            _exchangeDataRepository.SaveData(data);
+            return Ok("Exchange data loaded and saved");
         }
 
         [HttpGet]
@@ -22,7 +37,10 @@ namespace RealeyesHomework.UI.ApiControllers
         {
             try
             {
-                return Ok(_exchangeRateCalculator.LoadCurrencies());
+                return Ok(_exchangeDataRepository.GetCurrencies()
+                                                 .Union(new[] { ExchangeRateCalculator.LeadCurrency.Currency })
+                                                 .OrderBy(x => x)
+                                                 .ToList());
             }
             catch (Exception e)
             {

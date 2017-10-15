@@ -6,7 +6,10 @@ namespace RealeyesHomework.UI.Services.Interfaces
 {
     public interface IExchangeDataRepository
     {
-        Dictionary<DateTime, List<ExchangeRate>> Load();
-        IEnumerable<string> LoadCurrencies();
+        IList<string> GetCurrencies();
+
+        IDictionary<DateTime, IList<ExchangeRate>> GetExchangeRates(DateTime from, DateTime to);
+
+        void SaveData(IDictionary<DateTime, IList<ExchangeRate>> data);
     }
 }

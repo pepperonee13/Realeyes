@@ -8,31 +8,24 @@ namespace RealeyesHomework.UI.Services.Implementations
 {
     public class ExchangeRateCalculator
     {
-        private readonly IExchangeDataRepository _exchangeService;
-        private static readonly ExchangeRate LeadCurrency = new ExchangeRate
+        private readonly IExchangeDataRepository _exchangeDataRepository;
+        public static readonly ExchangeRate LeadCurrency = new ExchangeRate
         {
             Currency = "EUR",
             Rate = 1
         };
-        private List<ExchangeRate> _exchangeRates;
+        private IList<ExchangeRate> _exchangeRates;
 
-        public ExchangeRateCalculator(IExchangeDataRepository exchangeService)
+        public ExchangeRateCalculator(IExchangeDataRepository exchangeDataRepository)
         {
-            _exchangeService = exchangeService;
+            _exchangeDataRepository = exchangeDataRepository;
         }
 
-        public IEnumerable<string> LoadCurrencies()
+        public IDictionary<long, decimal> GetExchangeRate(string fromCurrency, string toCurrency)
         {
-            return _exchangeService.LoadCurrencies()
-                                   .Union(new[] { LeadCurrency.Currency })
-                                   .OrderBy(x => x)
-                                   .ToList();
-        }
-
-        public IDictionary<int, decimal> GetExchangeRate(string fromCurrency, string toCurrency)
-        {
-            var result = new Dictionary<int, decimal>();
-            var data = _exchangeService.Load().OrderBy(x => x.Key);
+            var result = new Dictionary<long, decimal>();
+            //TODO: use from and to dates as parameters
+            var data = _exchangeDataRepository.GetExchangeRates(DateTime.Today.AddDays(-30), DateTime.Today).OrderBy(x => x.Key);
             foreach (var dateAndRates in data)
             {
                 var exchangeRates = AddLeadCurrency(dateAndRates.Value);
@@ -43,18 +36,19 @@ namespace RealeyesHomework.UI.Services.Implementations
             return result;
         }
 
-        private static List<ExchangeRate> AddLeadCurrency(List<ExchangeRate> exchangeRates)
+        private static IList<ExchangeRate> AddLeadCurrency(IList<ExchangeRate> exchangeRates)
         {
             exchangeRates.Add(LeadCurrency);
             return exchangeRates;
         }
 
-        private static int GetTimestamp(DateTime date)
+        private static long GetTimestamp(DateTime date)
         {
-            return (int)date.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            var dateTimeOffset = new DateTimeOffset(date);
+            return dateTimeOffset.ToUnixTimeSeconds();
         }
 
-        public decimal GetExchangeRate(List<ExchangeRate> exchangeRates, string fromCurrency, string toCurrency)
+        public decimal GetExchangeRate(IList<ExchangeRate> exchangeRates, string fromCurrency, string toCurrency)
         {
             _exchangeRates = exchangeRates;
             // Preconditions

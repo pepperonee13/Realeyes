@@ -10,7 +10,6 @@
         var graph = undefined;
 
         var seriesData = [];
-
         var createGraph = function () {
             graph = new Rickshaw.Graph({
                 element: document.querySelector("#chart"),
@@ -20,20 +19,18 @@
                         data: seriesData,
                         color: 'steelblue'
                     }
-                ]
+                ],
+                min: "auto"
             });
 
-            var yAxis = new Rickshaw.Graph.Axis.Y({
-                graph: graph,
-                tickFormat: Rickshaw.Fixtures.Number.formatKMBT
+            new Rickshaw.Graph.Axis.Y({
+                graph: graph
             });
-
-            yAxis.render();
 
             var hoverDetail = new Rickshaw.Graph.HoverDetail({
                 graph: graph,
-                xFormatter: function (x) {
-                    return new Date(x).toISOString().slice(0, 10);
+                xFormatter: function (timestamp) {
+                    return new Date(timestamp).toLocaleDateString();
                 }
             });
 
@@ -55,10 +52,6 @@
                 });
         };
 
-        var init = function () {
-            loadCurrencies();
-        };
-
         var loadExchangeData = function (onLoaded) {
             $.ajax({
                 url: "/api/exchange/getexchangerate?fromCurrency=" + selectedSource() + "&toCurrency=" + selectedTarget(),
@@ -69,13 +62,12 @@
                     console.log(response);
                     seriesData.length = 0;
                     $.each(response,
-                        function(i, item) {
+                        function (i, item) {
                             seriesData.push({
-                                x: Number(i),
+                                x: Number(i) * 1000,
                                 y: item
                             });
                         });
-
                     onLoaded();
                 });
         };
@@ -89,8 +81,20 @@
         };
 
         var showData = function () {
-            console.log("loading data for " + selectedSource() + " and " + selectedTarget());
+            console.log("loading exchange rates for " + selectedSource() + " and " + selectedTarget());
             loadExchangeData(updateGraph);
+        };
+
+        var init = function () {
+            status("Loading Exchange data...");
+            $.ajax({
+                url: "api/exchange/loaddata",
+                type: "POST",
+                contentType: "application/json"
+            }).done(function (result) {
+                console.log(result);
+                loadCurrencies();
+            });
         };
 
         return {

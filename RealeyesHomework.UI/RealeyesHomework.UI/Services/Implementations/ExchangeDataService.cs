@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace RealeyesHomework.UI.Services.Implementations
 {
-    public class ExchangeDataService : IExchangeDataRepository
+    public class ExchangeDataService : IExchangeDataService
     {
         private const string DataUrl = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml";
         private const string CubeNodeName = "Cube";
@@ -17,34 +17,23 @@ namespace RealeyesHomework.UI.Services.Implementations
         private const string CurrencyAttributeName = "currency";
         private const string RateAttributeName = "rate";
         private const string NumberDecimalSeparator = ".";
-        private static IEnumerable<string> _currencies;
-        private static Dictionary<DateTime, List<ExchangeRate>> _data;
-
 
         private static readonly IFormatProvider FormatProvider = new NumberFormatInfo
         {
             NumberDecimalSeparator = NumberDecimalSeparator
         };
 
-        public IEnumerable<string> LoadCurrencies()
+        public IDictionary<DateTime, IList<ExchangeRate>> Load()
         {
-            return _currencies ?? (_currencies = Load().First()
-                                                       .Value
-                                                       .Select(x => x.Currency)
-                                                       .Distinct());
+            return XDocument.Load(DataUrl)
+                            .Root
+                            .Elements().Single(x => x.Name.LocalName == CubeNodeName)
+                            .Elements()
+                            .Where(x => x.Name.LocalName == CubeNodeName)
+                            .ToDictionary(ParseDate, ParseExchangeRates);
         }
 
-        public Dictionary<DateTime, List<ExchangeRate>> Load()
-        {
-            return _data ?? (_data = XDocument.Load(DataUrl)
-                                              .Root
-                                              .Elements().Single(x => x.Name.LocalName == CubeNodeName)
-                                              .Elements()
-                                              .Where(x => x.Name.LocalName == CubeNodeName)
-                                              .ToDictionary(ParseDate, ParseExchangeRates));
-        }
-
-        private static List<ExchangeRate> ParseExchangeRates(XElement x)
+        private static IList<ExchangeRate> ParseExchangeRates(XElement x)
         {
             return x.Elements().Select(ParseExchangeRate).ToList();
         }

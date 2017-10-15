@@ -164,9 +164,11 @@
     </Compile>
     <Compile Include="Models\GetExchangeRateRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Implementations\InMemoryExchangeDataRepository.cs" />
     <Compile Include="Services\Implementations\ExchangeRateCalculator.cs" />
     <Compile Include="Services\Implementations\ExchangeDataService.cs" />
     <Compile Include="Services\Interfaces\IExchangeDataRepository.cs" />
+    <Compile Include="Services\Interfaces\IExchangeDataService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
